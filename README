@@ -1,1 +1,10 @@
-TESTING TESTING...
+ABOUT GENERIC EDL
+
+The basic idea is to structure Edit Decision List into python objects. All objects are gathered in the edit object that can parse different EDL and XML types. This makes easier to transfer editing data between non-linear video that can import and export some kind of textual presentation of the edit data.
+
+At the moment I'm structuring the objects. Next step will be publisihng the first objects, plan of the objects and functions and TO DO list. This will happen in April 2011 and after that I'll be needing some help.
+
+USAGE
+
+In the beginning the objects will be accessed from python. Maybe some simple GUI will applied later on.
+
