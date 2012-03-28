@@ -33,6 +33,7 @@
 ##########################################################################
 
 ## @package animaCore.genericEDL - has been part of animaCore - let's see if that gets to gitHub as well
+#  @note the commenting format is made for doxygen
 #  Functions and classes to describe edit data in a multimedia project
 import math
 
@@ -54,7 +55,8 @@ def aSupportedFPS():
 
 #CLASSES
 ## base class for testing and validating time input, used in aTimeHandler and in classes that have time input
-#  @retval  new object 
+#  @retval  new object
+#  @note this might be canged into a function that objects would just use - now these methods are inheirted to objects 
 class aTimeTest(object):
     ## tests if given FPS is supported and makes FPS non-case sensitive
     #  @retval FPS in lowercase 
@@ -247,6 +249,7 @@ class aTime(aTimeHandler):
 
 ## a base class to describe a clips range - used in clips
 #  @retval new object 
+#  @note setattr is overridden but getattr not
 class aRange(aTimeTest):
     #  @param IN point in to the clips own time space clip starts from zero
     #  @param parentIN a sync point to parent's time (for example Edit's global time)
@@ -258,8 +261,9 @@ class aRange(aTimeTest):
         self.IN=self.testObject(IN)
         self.parentIN=self.testObject(parentIN)
         self.duration=self.testObject(duration)
-    ## returns the IN time as desired type
-    #  @retval IN point as aTime, or defined by tFormat
+    ## functions to return the attributes time as desired type
+    #  @retval the attribute as aTime, or defined by tFormat
+    #  @note tFormat is at the moment string but we might use own class for it
     def getIN(self, tFormat='aTime'):
         if tFormat=='aTime':
             return self.IN
@@ -269,13 +273,49 @@ class aRange(aTimeTest):
             return self.IN.asFrames()
         if tFormat=='SMPTE':
             return self.IN.asSmpte()
-    # override setAttr to ensure the datatypes for time units to be aTime
+    def getParentIN(self, tFormat='aTime'):
+        if tFormat=='aTime':
+            return self.parentIN
+        if tFormat=='seconds':
+            return self.parentIN.asTime()
+        if tFormat=='frames':
+            return self.parentIN.asFrames()
+        if tFormat=='SMPTE':
+            return self.parentIN.asSmpte()
+    def getDuration(self, tFormat='aTime'):
+        if tFormat=='aTime':
+            return self.duration
+        if tFormat=='seconds':
+            return self.duration.asTime()
+        if tFormat=='frames':
+            return self.duration.asFrames()
+        if tFormat=='SMPTE':
+            return self.duration.asSmpte()
+    def getOUT(self, tFormat='aTime'):
+        if tFormat=='aTime':
+            return self.IN+self.duration
+        if tFormat=='seconds':
+            return aTime(self.IN+self.duration).asTime()
+        if tFormat=='frames':
+            return aTime(self.IN+self.duration).asFrames()
+        if tFormat=='SMPTE':
+            return aTime(self.IN+self.duration).asSmpte()
+    def getParentOUT(self, tFormat='aTime'):
+        if tFormat=='aTime':
+            return self.parentIN+self.duration
+        if tFormat=='seconds':
+            return aTime(self.parentIN+self.duration).asTime()
+        if tFormat=='frames':
+            return aTime(self.parentIN+self.duration).asFrames()
+        if tFormat=='SMPTE':
+            return aTime(self.parentIN+self.duration).asSmpte()
+    # override setattr to ensure the datatypes for time units to be aTime
     def __setattr__(self, name, value):
         self.__dict__[name]=value
-        print name
         if name=='IN' or name=='parentIN' or name=='duration':
             value=self.testObject(value)
             self.__dict__[name]=value
+
 
 ''' TO BE CONT...
 clip=aRange(1,2,3)
