@@ -1,5 +1,39 @@
-## @package animaCore.genericEDL
-#  Functions and classes to handle edit data
+##########################################################################
+##
+##  Copyright (c) 2012, Anima Vitae Ltd. All rights reserved.
+##
+##  Redistribution and use in source and binary forms, with or without
+##  modification, are permitted provided that the following conditions are
+##  met:
+##
+##     * Redistributions of source code must retain the above copyright
+##       notice, this list of conditions and the following disclaimer.
+##
+##     * Redistributions in binary form must reproduce the above copyright
+##       notice, this list of conditions and the following disclaimer in the
+##       documentation and#or other materials provided with the distribution.
+##
+##     * Neither the name of Anima Vitae Ltd. nor the names of any
+##       other contributors to this software may be used to endorse or
+##       promote products derived from this software without specific prior
+##       written permission.
+##
+##  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
+##  IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+##  THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+##  PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+##  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+##  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+##  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+##  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+##  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+##  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+##  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+##
+##########################################################################
+
+## @package animaCore.genericEDL - has been part of animaCore - let's see if that gets to gitHub as well
+#  Functions and classes to describe edit data in a multimedia project
 import math
 
 # FOR VALIDATING DATA
@@ -19,7 +53,7 @@ def aSupportedFPS():
     return {'pal':25, 'ntsc':30, 'film':24, 'nanos':1000000000}
 
 #CLASSES
-## base class for testing and validating time input, used in aTimeHandler and in classess that have time input
+## base class for testing and validating time input, used in aTimeHandler and in classes that have time input
 #  @retval  new object 
 class aTimeTest(object):
     ## tests if given FPS is supported and makes FPS non-case sensitive
@@ -211,32 +245,128 @@ class aTime(aTimeHandler):
     def asObject(self, FPS=aDefaultFPS(), returnAsList=0, dotFormat=':::'):
         return aTime(self.time)
 
+## a base class to describe a clips range - used in clips
+#  @retval new object 
+class aRange(aTimeTest):
+    #  @param IN point in to the clips own time space clip starts from zero
+    #  @param parentIN a sync point to parent's time (for example Edit's global time)
+    #  @param duration duration in real time (not clip's internal time code)
+    #  @param clip's playback speed, affect's clips internal tc  
+    #  @param speed the range content is "played"
+    def __init__(self, IN=aTime(0.0), parentIN=aTime(0.0), duration=aTime(0.0)):
+        # object testing might be changed just to ordinary function
+        self.IN=self.testObject(IN)
+        self.parentIN=self.testObject(parentIN)
+        self.duration=self.testObject(duration)
+    ## returns the IN time as desired type
+    #  @retval IN point as aTime, or defined by tFormat
+    def getIN(self, tFormat='aTime'):
+        if tFormat=='aTime':
+            return self.IN
+        if tFormat=='seconds':
+            return self.IN.asTime()
+        if tFormat=='frames':
+            return self.IN.asFrames()
+        if tFormat=='SMPTE':
+            return self.IN.asSmpte()
+    # override setAttr to ensure the datatypes for time units to be aTime
+    def __setattr__(self, name, value):
+        self.__dict__[name]=value
+        print name
+        if name=='IN' or name=='parentIN' or name=='duration':
+            value=self.testObject(value)
+            self.__dict__[name]=value
+
+''' TO BE CONT...
+clip=aRange(1,2,3)
+print clip.getIN('frames')
+
+class aBaseClip(aTimeTest):
+    #  @param IN point in to the clips own time space clip starts from zero
+    #  @param parentIN a sync point to parent's time (for example Edit's global time)
+    #  @param duration duration in real time (not clip's internal time code)
+    #  @param clip's playback speed, affect's clips internal tc  
+    #  @param speed the range content is "played"
+    ##  @param tcOffset is used if
+    ##  @param media is used if
+    ##  @param subClips is used if
+    ##  @param FPS is used if
+    
+    def __init__(self, ranges=aRange(),tcOffset=aTime(0.0),fadeIN=aTime(0.0),fadeOUT=aTime(0.0)):
+        self.IN=self.testObject(IN)
+        self.parentIN=self.testObject(parentIN)
+        self.duration=self.testObject(duration)
+
+    
+
 ## a base class to describe a clip on a track 
 #  @retval new object (also by +-*/ operations)
 class aBaseClip(aTimeTest):
-    #  @param IN point in to the clips own time space
+    #  @param IN point in to the clips own time space clip starts from zero
     #  @param parentIN a sync point to parent's time (for example Edit's global time)
     #  @param duration duration in real time (not clip's internal time code)
+    #  @param clip's playback speed, affect's clips internal tc  
     #  @param speed the range content is "played"
-    def __init__(self, IN=aTime(0.0), parentIN=aTime(0.0), duration=aTime(0.0),speed=1.0):
+    ##  @param tcOffset is used if
+    ##  @param media is used if
+    ##  @param subClips is used if
+    ##  @param FPS is used if
+    
+    def __init__(self, IN=aTime(0.0), parentIN=aTime(0.0), duration=aTime(0.0),speed=1.0,tcOffset==aTime(0.0),fadeIN=aTime(0.0),fadeOUT=aTime(0.0)):
         self.IN=self.testObject(IN)
         self.parentIN=self.testObject(parentIN)
         self.duration=self.testObject(duration)
         self.speed=speed
-    ## returns object time as seconds,replacing speed with parent OUT - useful for writing EDL
-    #  @retval in point as aTime
-    def getIN(self):
-        return self.IN
+        self.fadeIN=fadeIN
+        self.fadeOUT=fadeOUT
+        ## these are not initialized - atributes are not have use yet, just for the record 
+        # for defining the shape of the fade curve
+        # self.fadeINtangetStart=45
+        # self.fadeINtangetStart=45
+        # self.fadeOUTtangetStart=45
+        # self.fadeOUTtangetStart=45
+        ## for defining what happpens before and after the clip starts
+        # self.preInfinity=0
+        # self.postInfinity=0
+        ## defines if the speed shoud be over ridden by the parents playbackRate (FPS or sampleRate or such)
+        #self.forcePlaybackRate=0
+    ## returns the IN time as object
+    #  @retval IN point as aTime, or defined by tFormat
+    def getIN(self, tFormat='aTime'):
+        if tFormat=='aTime':
+            return self.IN
+        if tFormat=='seconds':
+            return self.IN.asTime()
+        if tFormat=='frames':
+            return self.IN.asFrames()
+        if tFormat=='SMPTE':
+            return self.IN.asSmpte()
+        
+    ## returns the parentIN time as object
+    #  @retval parent (clip or track) IN point as aTime
+    def getparentIN(self):
+        return self.parentIN
+    ## returns the parentOUT time as object
+    #  @retval parent (clip or track) OUT point as aTime
+    def getparentOUT(self):
+        return self.parentIN+self.duration
+    ## returns the OUT time relative to clips own TC
+    #  @retval parent (clip or track) IN point as aTime
+    def getOUT(self):
+        return self.parentIN
         
     # override setAttr to ensure the datatypes for time units to be aTime
     def __setattr__(self, name, value):
         self.__dict__[name]=value
-        if name=='IN' or name=='parentIN' or name=='duration':
+        print name
+        if name=='IN' or name=='parentIN' or name=='duration' or name=='fadeIN' or name=='fadeOUT' or name=='tcOffset':
             value=self.testObject(value)
             self.__dict__[name]=value
  
+clip=aBaseClip(1,2,3)
+print clip.getIN('frames')
 
-'''  BASE CLIP TO BE CONTINUED... 
+  
     ## returns object attributes as SMPTE,replacing speed with parent OUT - useful for writing EDL
     #  @retval all class atributes as they are - range duration = [-1]
     ## returns object attributes
