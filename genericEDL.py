@@ -1,36 +1,36 @@
-##########################################################################
-##
-##  Copyright (c) 2012, Anima Vitae Ltd. All rights reserved.
-##
-##  Redistribution and use in source and binary forms, with or without
-##  modification, are permitted provided that the following conditions are
-##  met:
-##
-##     * Redistributions of source code must retain the above copyright
-##       notice, this list of conditions and the following disclaimer.
-##
-##     * Redistributions in binary form must reproduce the above copyright
-##       notice, this list of conditions and the following disclaimer in the
-##       documentation and#or other materials provided with the distribution.
-##
-##     * Neither the name of Anima Vitae Ltd. nor the names of any
-##       other contributors to this software may be used to endorse or
-##       promote products derived from this software without specific prior
-##       written permission.
-##
-##  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
-##  IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-##  THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-##  PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-##  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-##  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-##  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-##  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-##  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-##  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-##  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-##
-##########################################################################
+############################################################################
+####
+####  Copyright (c) 2012, Anima Vitae Ltd. All rights reserved.
+####
+####  Redistribution and use in source and binary forms, with or without
+####  modification, are permitted provided that the following conditions are
+####  met:
+####
+####     * Redistributions of source code must retain the above copyright
+####       notice, this list of conditions and the following disclaimer.
+####
+####     * Redistributions in binary form must reproduce the above copyright
+####       notice, this list of conditions and the following disclaimer in the
+####       documentation and#or other materials provided with the distribution.
+####
+####     * Neither the name of Anima Vitae Ltd. nor the names of any
+####       other contributors to this software may be used to endorse or
+####       promote products derived from this software without specific prior
+####       written permission.
+####
+####  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
+####  IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+####  THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+####  PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+####  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+####  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+####  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+####  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+####  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+####  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+####  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+####
+############################################################################
 
 ## @package animaCore.genericEDL - has been part of animaCore - let's see if that gets to gitHub as well
 #  @note the commenting format is made for doxygen
@@ -104,7 +104,6 @@ class aTimeTest(object):
             else:
                 time = aTime(self.smpteAsTime(time, FPS))
         elif type(time)!=aTime:
-            print 'm IN'
             time=aTime(time)
         return time
     
@@ -261,8 +260,8 @@ class aRange(aTimeTest):
         self.IN=self.testObject(IN)
         self.parentIN=self.testObject(parentIN)
         self.duration=self.testObject(duration)
-    ## functions to return the attributes time as desired type
-    #  @retval the attribute as aTime, or defined by tFormat
+    ## function to return the IN time as desired type
+    #  @retval range's IN time aTime, or defined by tFormat
     #  @note tFormat is at the moment string but we might use own class for it
     def getIN(self, tFormat='aTime'):
         if tFormat=='aTime':
@@ -318,29 +317,155 @@ class aRange(aTimeTest):
 
 def mergeTest():
     print 'what now?'
-mergeTest()
     
-''' TO BE CONT...
-clip=aRange(1,2,3)
-print clip.getIN('frames')
+## a base class for locating media files 
+#  @retval new object
+#  @ JUST A SKETCH
+class aPath(object):
+    #  @param name is used as deafult for writing files or describe the objects
+    #  @param search array is to used to store the potential locations to search the msiiing file
+    def __init__(self, path='', name='',search=[]):
+        self.path=path
+        self.search=search
+    ## basic string replacing operation
+##    def replace(self, searchExp, replaceExp, caseSensitive=1):
+##        print 'TO DO'
+##    ## changing path name and cheking if new path is exists
+##    def replacePath(self, path, newPath, caseSensitive=1):
+##        print 'TO DO'
+##    ## searching for the file under given path
+##    def search(self, name, path, partialMatch=0, ignoreExtension=0, caseSensitive=1):
+##        print 'TO DO'
+##    def nextAvailableName(self, path):
+##        print 'TO DO'
 
+## a base media properties 
+#  @retval new object 
+class aMedia(object):
+    #  @param start is internal start time 
+    #  @param end is internal end time
+    #  @param FPS is media's native FPS format
+    #  @param path media's file path
+    def __init__(self, start=aTime(0.0), end=aTime(0.0), FPS=aDefaultFPS(), path=aPath()):
+        self.start=start
+        self.end=end
+        self.FPS=FPS
+        self.path=path
+    def getDuartion(self):
+        return aTime(end-start)
+
+################### THESE COMMENTED CLASSES ARE NOT NEEDED QUIYE YET       
+#### a base video properties 
+###  @retval new object 
+##class aVideoProperties(object):
+##    def __init__(self,  FPS=aDefaultFPS(), x=0, y=0, bitDepth=8, fileFormat='', compression=''):
+##        self.FPS=FPS
+##        self.x=x
+##        self.y=y
+##        self.bitDepth=bitDepth
+##        print 'TO DO etc.'
+##
+#### a base audio properties 
+###  @retval new object 
+##class aAudioProperties(object):
+##    def __init__(self, bitDepth=16, numOfChannles=1,samples=44100):
+##        self.bitDepth=bitDepth
+##        print 'TO DO etc.'
+##         
+#### a base media container 
+###  @retval new object 
+##class aMedia(aPath,aMediaProperties):
+##    def __init__(self, start=aTime(0.0), end=aTime(0.0), FPS=aDefaultFPS(), path='',name='',search=[]):
+##        aMediaProperties.__init__(self,start,end)
+##        aPath.__init__(self,path,name,search)
+##
+#### a base video container 
+###  @retval new object 
+##class aVideo(aMedia):
+##    def __init__(self, start=aTime(0.0), end=aTime(0.0), FPS=aDefaultFPS(), path='',name='',search=[], properties=aVideoProperties()):
+##        aMedia.__init__(self, start, end, FPS, path, name, search)
+##        self.properties=properties
+##
+#### a base audio container 
+###  @retval new object        
+##class aAudio(aMedia):
+##    def __init__(self, start=aTime(0.0), end=aTime(0.0), FPS=aDefaultFPS(), path='', name='',search=[], properties=aVideoProperties()):
+##        aMedia.__init__(self, start, end, FPS, path, name, search)
+##        self.properties=properties
+
+## a base class to describe a clips - clip combines range and to media and defines the sync - by default clip's start frame 0 is in sync in media start time x.
+#  @retval new object 
+#  @note setattr is overridden 
 class aBaseClip(aTimeTest):
-    #  @param IN point in to the clips own time space clip starts from zero
-    #  @param parentIN a sync point to parent's time (for example Edit's global time)
-    #  @param duration duration in real time (not clip's internal time code)
+    #  @param ranges = aRange object 
     #  @param clip's playback speed, affect's clips internal tc  
     #  @param speed the range content is "played"
-    ##  @param tcOffset is used if
-    ##  @param media is used if
-    ##  @param subClips is used if
-    ##  @param FPS is used if
-    
-    def __init__(self, ranges=aRange(),tcOffset=aTime(0.0),fadeIN=aTime(0.0),fadeOUT=aTime(0.0)):
-        self.IN=self.testObject(IN)
-        self.parentIN=self.testObject(parentIN)
-        self.duration=self.testObject(duration)
+    #  @param offset is used to alter clips start time's (0) sync to media's start time.  
+    #  @param media is used if
+    #  @param subClips is used if
+    #  @param FPS is used if 
+    def __init__(self, ranges=aRange(),speed=1.0,offset=aTime(0.0),fadeIN=aTime(0.0),fadeOUT=aTime(0.0),media=aMedia()):
+        self.ranges=ranges
+        self.speed=speed
+        self.offset=offset
+        self.fadeIN=fadeIN
+        self.fadeOUT=fadeOUT
+        self.media=media
+        ## these are not initialized - atributes are not have use yet, just for the record 
+        ## for defining the shape of the fade curve
+        # self.fadeINtangetStart=45
+        # self.fadeINtangetStart=45
+        # self.fadeOUTtangetStart=45
+        # self.fadeOUTtangetStart=45
+        ## for defining what happpens before and after the clip starts
+        # self.preInfinity=0
+        # self.postInfinity=0
+        ## defines if the speed shoud be over ridden by the parents playbackRate (FPS or sampleRate or such)
+        # self.forcePlaybackRate=0
+        ## possible nesting of clips
+        # self.subClips=[]
+    ## returns the IN time as object
+    #  @retval IN point as aTime, or defined by tFormat
 
-    
+
+
+'''
+clip=aRange(1,2,3)
+print clip.getParentOUT('frames')
+
+    def getIN(self, tFormat='aTime'):
+        if tFormat=='aTime':
+            return self.IN
+        if tFormat=='seconds':
+            return self.IN.asTime()
+        if tFormat=='frames':
+            return self.IN.asFrames()
+        if tFormat=='SMPTE':
+            return self.IN.asSmpte()
+        
+    ## returns the parentIN time as object
+    #  @retval parent (clip or track) IN point as aTime
+    def getparentIN(self):
+        return self.parentIN
+    ## returns the parentOUT time as object
+    #  @retval parent (clip or track) OUT point as aTime
+    def getparentOUT(self):
+        return self.parentIN+self.duration
+    ## returns the OUT time relative to clips own TC
+    #  @retval parent (clip or track) IN point as aTime
+    def getOUT(self):
+        return self.parentIN
+        
+    # override setAttr to ensure the datatypes for time units to be aTime
+    def __setattr__(self, name, value):
+        self.__dict__[name]=value
+        print name
+        if name=='fadeIN' or name=='fadeOUT' or name=='tcOffset':
+            value=self.testObject(value)
+            self.__dict__[name]=value
+
+
+   
 
 ## a base class to describe a clip on a track 
 #  @retval new object (also by +-*/ operations)
