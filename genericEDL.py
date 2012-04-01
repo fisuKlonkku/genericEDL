@@ -316,7 +316,10 @@ class aRange(aTimeTest):
             value=self.testObject(value)
             self.__dict__[name]=value
 
-
+def mergeTest():
+    print 'what now?'
+mergeTest()
+    
 ''' TO BE CONT...
 clip=aRange(1,2,3)
 print clip.getIN('frames')
