@@ -314,9 +314,6 @@ class aRange(aTimeTest):
         if name=='IN' or name=='parentIN' or name=='duration':
             value=self.testObject(value)
             self.__dict__[name]=value
-
-def mergeTest():
-    print 'what now?'
     
 ## a base class for locating media files 
 #  @retval new object
@@ -341,19 +338,54 @@ class aPath(object):
 
 ## a base media properties 
 #  @retval new object 
-class aMedia(object):
+class aMedia(aTimeTest):
     #  @param start is internal start time 
     #  @param end is internal end time
     #  @param FPS is media's native FPS format
     #  @param path media's file path
     def __init__(self, start=aTime(0.0), end=aTime(0.0), FPS=aDefaultFPS(), path=aPath()):
-        self.start=start
-        self.end=end
+        self.start=self.testObject(start)
+        self.end=self.testObject(end)
+        #FPS as is actually more of a video property - might be left out from the base media?
+        # lets see how often we would like to know this..
         self.FPS=FPS
         self.path=path
-    def getDuartion(self):
-        return aTime(end-start)
-
+    def getStart(self, tFormat='aTime'):
+        if tFormat=='aTime':
+            return self.start
+        if tFormat=='seconds':
+            return self.start.asTime()
+        if tFormat=='frames':
+            return self.start.asFrames()
+        if tFormat=='SMPTE':
+            return self.start.asSmpte()
+    def getEnd(self, tFormat='aTime'):
+        if tFormat=='aTime':
+            return self.end
+        if tFormat=='seconds':
+            return self.end.asTime()
+        if tFormat=='frames':
+            return self.end.asFrames()
+        # we might need fps input here, hmm
+        if tFormat=='SMPTE':
+            return self.end.asSmpte()
+    def getDuration(self, tFormat='aTime'):
+        if tFormat=='aTime':
+            return self.end-self.start
+        if tFormat=='seconds':
+            return self.end.asTime()-self.start.asTime()
+        if tFormat=='frames':
+            return self.end.asFrames()-self.start.asFrames()
+        if tFormat=='SMPTE':
+            return aTime(self.end-self.start).asSmpte()
+    # override setattr to ensure the datatypes for time units to be aTime
+    def __setattr__(self, name, value):
+        self.__dict__[name]=value
+        if name=='start' or name=='end':
+            value=self.testObject(value)
+            self.__dict__[name]=value
+media=aMedia(0,1)
+print media.getDuration('frames')
 ################### THESE COMMENTED CLASSES ARE NOT NEEDED QUIYE YET       
 #### a base video properties 
 ###  @retval new object 
@@ -426,7 +458,15 @@ class aBaseClip(aTimeTest):
         # self.subClips=[]
     ## returns the IN time as object
     #  @retval IN point as aTime, or defined by tFormat
+    
 
+
+    # override setattr to ensure the datatypes for time units to be aTime
+    def __setattr__(self, name, value):
+        self.__dict__[name]=value
+        if name=='fadeIN' or name=='fadeOUT' or name=='duration' or name=='offset':
+            value=self.testObject(value)
+            self.__dict__[name]=value
 
 
 '''
