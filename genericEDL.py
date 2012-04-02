@@ -260,54 +260,26 @@ class aRange(aTimeTest):
         self.IN=self.testObject(IN)
         self.parentIN=self.testObject(parentIN)
         self.duration=self.testObject(duration)
-    ## function to return the IN time as desired type
-    #  @retval range's IN time aTime, or defined by tFormat
-    #  @note tFormat is at the moment string but we might use own class for it
-    def getIN(self, tFormat='aTime'):
-        if tFormat=='aTime':
-            return self.IN
-        if tFormat=='seconds':
-            return self.IN.asTime()
-        if tFormat=='frames':
-            return self.IN.asFrames()
-        if tFormat=='SMPTE':
-            return self.IN.asSmpte()
-    def getParentIN(self, tFormat='aTime'):
-        if tFormat=='aTime':
-            return self.parentIN
-        if tFormat=='seconds':
-            return self.parentIN.asTime()
-        if tFormat=='frames':
-            return self.parentIN.asFrames()
-        if tFormat=='SMPTE':
-            return self.parentIN.asSmpte()
-    def getDuration(self, tFormat='aTime'):
-        if tFormat=='aTime':
-            return self.duration
-        if tFormat=='seconds':
-            return self.duration.asTime()
-        if tFormat=='frames':
-            return self.duration.asFrames()
-        if tFormat=='SMPTE':
-            return self.duration.asSmpte()
-    def getOUT(self, tFormat='aTime'):
-        if tFormat=='aTime':
-            return self.IN+self.duration
-        if tFormat=='seconds':
-            return aTime(self.IN+self.duration).asTime()
-        if tFormat=='frames':
-            return aTime(self.IN+self.duration).asFrames()
-        if tFormat=='SMPTE':
-            return aTime(self.IN+self.duration).asSmpte()
-    def getParentOUT(self, tFormat='aTime'):
-        if tFormat=='aTime':
-            return self.parentIN+self.duration
-        if tFormat=='seconds':
-            return aTime(self.parentIN+self.duration).asTime()
-        if tFormat=='frames':
-            return aTime(self.parentIN+self.duration).asFrames()
-        if tFormat=='SMPTE':
-            return aTime(self.parentIN+self.duration).asSmpte()
+    ## function to return the IN time 
+    #  @retval range's IN time aTime
+    def getIN(self):
+        return self.IN
+    ## function to return the parent timecode's IN 
+    #  @retval range's parent IN time aTime 
+    def getParentIN(self):
+       return self.parentIN
+    ## function to return the duration 
+    #  @retval range's duration time as aTime, 
+    def getDuration(self):
+        return self.duration
+    ## function to return the OUT time 
+    #  @retval range's OUT time as aTime
+    def getOUT(self):
+        return self.IN+self.duration
+    ## function to return the parent timeline's OUT 
+    #  @retval range's parent OUT as aTime
+    def getParentOUT(self):
+        return self.parentIN+self.duration
     # override setattr to ensure the datatypes for time units to be aTime
     def __setattr__(self, name, value):
         self.__dict__[name]=value
@@ -347,84 +319,69 @@ class aMedia(aTimeTest):
         self.start=self.testObject(start)
         self.end=self.testObject(end)
         #FPS as is actually more of a video property - might be left out from the base media?
-        # lets see how often we would like to know this..
+        # lets see how often we would like to know this
         self.FPS=FPS
         self.path=path
-    def getStart(self, tFormat='aTime'):
-        if tFormat=='aTime':
-            return self.start
-        if tFormat=='seconds':
-            return self.start.asTime()
-        if tFormat=='frames':
-            return self.start.asFrames()
-        if tFormat=='SMPTE':
-            return self.start.asSmpte()
-    def getEnd(self, tFormat='aTime'):
-        if tFormat=='aTime':
-            return self.end
-        if tFormat=='seconds':
-            return self.end.asTime()
-        if tFormat=='frames':
-            return self.end.asFrames()
-        # we might need fps input here, hmm
-        if tFormat=='SMPTE':
-            return self.end.asSmpte()
-    def getDuration(self, tFormat='aTime'):
-        if tFormat=='aTime':
-            return self.end-self.start
-        if tFormat=='seconds':
-            return self.end.asTime()-self.start.asTime()
-        if tFormat=='frames':
-            return self.end.asFrames()-self.start.asFrames()
-        if tFormat=='SMPTE':
-            return aTime(self.end-self.start).asSmpte()
+    ## function to return media' start time 
+    #  @retval media's start time as aTime
+    def getStart(self):
+        return self.start
+    ## function to return media' end time 
+    #  @retval media's end time as aTime
+    def getEnd(self):
+        return self.end
+    ## function to return media' duration 
+    #  @retval media's duration as aTime
+    def getDuration(self):
+        return self.end-self.start
     # override setattr to ensure the datatypes for time units to be aTime
     def __setattr__(self, name, value):
         self.__dict__[name]=value
         if name=='start' or name=='end':
             value=self.testObject(value)
             self.__dict__[name]=value
-media=aMedia(0,1)
-print media.getDuration('frames')
-################### THESE COMMENTED CLASSES ARE NOT NEEDED QUIYE YET       
-#### a base video properties 
-###  @retval new object 
-##class aVideoProperties(object):
-##    def __init__(self,  FPS=aDefaultFPS(), x=0, y=0, bitDepth=8, fileFormat='', compression=''):
-##        self.FPS=FPS
-##        self.x=x
-##        self.y=y
-##        self.bitDepth=bitDepth
-##        print 'TO DO etc.'
-##
-#### a base audio properties 
-###  @retval new object 
-##class aAudioProperties(object):
-##    def __init__(self, bitDepth=16, numOfChannles=1,samples=44100):
-##        self.bitDepth=bitDepth
-##        print 'TO DO etc.'
-##         
-#### a base media container 
-###  @retval new object 
-##class aMedia(aPath,aMediaProperties):
-##    def __init__(self, start=aTime(0.0), end=aTime(0.0), FPS=aDefaultFPS(), path='',name='',search=[]):
-##        aMediaProperties.__init__(self,start,end)
-##        aPath.__init__(self,path,name,search)
-##
-#### a base video container 
-###  @retval new object 
-##class aVideo(aMedia):
-##    def __init__(self, start=aTime(0.0), end=aTime(0.0), FPS=aDefaultFPS(), path='',name='',search=[], properties=aVideoProperties()):
-##        aMedia.__init__(self, start, end, FPS, path, name, search)
-##        self.properties=properties
-##
-#### a base audio container 
-###  @retval new object        
-##class aAudio(aMedia):
-##    def __init__(self, start=aTime(0.0), end=aTime(0.0), FPS=aDefaultFPS(), path='', name='',search=[], properties=aVideoProperties()):
-##        aMedia.__init__(self, start, end, FPS, path, name, search)
-##        self.properties=properties
 
+#### SOME OF THESE CLASSES ARE PARTLY COMMENTED OUT - THEY ARE PLACEHOLDERS AT THE MOMENT      
+
+## a base video properties 
+#  @retval new object 
+class aVideoProperties(object):
+    def __init__(self,  FPS=aDefaultFPS(), x=0, y=0, bitDepth=8, fileFormat='', compression=''):
+        self.FPS=FPS
+        self.x=x
+        self.y=y
+        self.bitDepth=bitDepth
+        #TO DO etc.
+'''
+## a base audio properties 
+#  @retval new object 
+class aAudioProperties(object):
+    def __init__(self, sampeRate=44100.0,bitDepth=16, numOfChannles=1,samples=44100):
+        self.bitDepth=bitDepth
+        self.bitDepth=bitDepth
+        print 'TO DO etc.'
+         
+## a base media container 
+#  @retval new object 
+class aMedia(aPath,aMediaProperties):
+    def __init__(self, start=aTime(0.0), end=aTime(0.0), FPS=aDefaultFPS(), path='',name='',search=[]):
+        aMediaProperties.__init__(self,start,end)
+        aPath.__init__(self,path,name,search)
+
+## a base video container 
+#  @retval new object 
+class aVideo(aMedia):
+    def __init__(self, start=aTime(0.0), end=aTime(0.0), FPS=aDefaultFPS(), path='',name='',search=[], properties=aVideoProperties()):
+        aMedia.__init__(self, start, end, FPS, path, name, search)
+        self.properties=properties
+
+## a base audio container 
+#  @retval new object        
+class aAudio(aMedia):
+    def __init__(self, start=aTime(0.0), end=aTime(0.0), FPS=aDefaultFPS(), path='', name='',search=[], properties=aVideoProperties()):
+        aMedia.__init__(self, start, end, FPS, path, name, search)
+        self.properties=properties
+'''
 ## a base class to describe a clips - clip combines range and to media and defines the sync - by default clip's start frame 0 is in sync in media start time x.
 #  @retval new object 
 #  @note setattr is overridden 
@@ -439,9 +396,9 @@ class aBaseClip(aTimeTest):
     def __init__(self, ranges=aRange(),speed=1.0,offset=aTime(0.0),fadeIN=aTime(0.0),fadeOUT=aTime(0.0),media=aMedia()):
         self.ranges=ranges
         self.speed=speed
-        self.offset=offset
-        self.fadeIN=fadeIN
-        self.fadeOUT=fadeOUT
+        self.offset=self.testObject(offset)
+        self.fadeIN=self.testObject(fadeIN)
+        self.fadeOUT=self.testObject(fadeOUT)
         self.media=media
         ## these are not initialized - atributes are not have use yet, just for the record 
         ## for defining the shape of the fade curve
@@ -456,18 +413,27 @@ class aBaseClip(aTimeTest):
         # self.forcePlaybackRate=0
         ## possible nesting of clips
         # self.subClips=[]
-    ## returns the IN time as object
-    #  @retval IN point as aTime, or defined by tFormat
+    ## shortcut to range's IN time 
+    #  @retval range's IN time as aTime 
+    def getIN(self):
+       return self.ranges.getIN()
+    ## shortcut to range's OUT time 
+    #  @retval range's OUT time as aTime 
+    def getOUT(self):
+        return self.ranges.getIN()
     
 
 
     # override setattr to ensure the datatypes for time units to be aTime
     def __setattr__(self, name, value):
         self.__dict__[name]=value
-        if name=='fadeIN' or name=='fadeOUT' or name=='duration' or name=='offset':
+        if name=='fadeIN' or name=='fadeOUT' or name=='offset':
             value=self.testObject(value)
             self.__dict__[name]=value
 
+clip=aRange(1,2,3)
+bclip=(clip)
+print bclip.getIN().asSmpte()
 
 '''
 clip=aRange(1,2,3)
@@ -505,7 +471,7 @@ print clip.getParentOUT('frames')
             self.__dict__[name]=value
 
 
-   
+ 
 
 ## a base class to describe a clip on a track 
 #  @retval new object (also by +-*/ operations)
@@ -603,49 +569,7 @@ print clip.getIN('frames')
 
 
 
-## a container class for the edit events
-#  @retval new object (also by +- operations)
-class aRange(list):
-    #  @param ranges contains aEditEvent objects
-    #  @param IN, OUT and parentIN and speed are empty. They're used as a dummy to write values directly into ranges array
-    def __init__(self,IN=None, OUT=None, parentIN=None,speed=None):
-        list.__init__(self)
-        self.IN=IN
-        self.OUT=OUT
-        self.parentIN=parentIN
-        self.speed=speed
-    
-## a base class for locating media files
-#  @retval new object 
-class aPath(object):
-    #  @param name is used as deafult for writing files or describe the objects
-    #  @param search array is to used to store the potential locations to search the msiiing file
-    def __init__(self, path='', name='',search=[]):
-        self.path=path
-        self.search=search
-    ## basic string replacing operation
-    def replace(self, searchExp, replaceExp, caseSensitive=1):
-        print 'TO DO'
-    ## changing path name and cheking if new path is exists
-    def replacePath(self, path, newPath, caseSensitive=1):
-        print 'TO DO'
-    ## searching for the file under given path
-    def search(self, name, path, partialMatch=0, ignoreExtension=0, caseSensitive=1):
-        print 'TO DO'
-    def nextAvailableName(self, path):
-        print 'TO DO'
 
-## a base media properties 
-#  @retval new object 
-class aMediaProperties(object):
-    #  @param start is internal start time 
-    #  @param end is internal end time
-    #  @FPS is media's native FPS format 
-    def __init__(self, start=aTime(0.0), end=aTime(0.0)):
-        self.start=start
-        self.end=end
-    def duartion(self):
-        return aTime(end-start)
        
 ## a base video properties 
 #  @retval new object 
@@ -710,14 +634,7 @@ class aClips(list):
             paths.append(item.path)
         return path
     
-## basic clip 
-class aBaseClip(object):
-    def __init__(self,ranges=aRange(), media=aMedia(), infinity=[0,0], sourcePath=aPath('','UNKNOWN'),clips=aClips()):
-        self.ranges=ranges
-        self.media=media
-        self.infinity=infinity
-        self.sourcePath=sourcePath
-        self.clips=clips
+
 
 ## video clip used in track
 class aVideoClip(aBaseClip):
