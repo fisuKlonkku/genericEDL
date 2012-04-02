@@ -11,7 +11,7 @@
 ####
 ####     * Redistributions in binary form must reproduce the above copyright
 ####       notice, this list of conditions and the following disclaimer in the
-####       documentation and#or other materials provided with the distribution.
+####       documentation and/or other materials provided with the distribution.
 ####
 ####     * Neither the name of Anima Vitae Ltd. nor the names of any
 ####       other contributors to this software may be used to endorse or
@@ -393,10 +393,10 @@ class aBaseClip(aTimeTest):
     #  @param media is used if
     #  @param subClips is used if
     #  @param FPS is used if 
-    def __init__(self, ranges=aRange(),speed=1.0,media=aMedia(),offset=aTime(0.0),fadeIN=aTime(0.0),fadeOUT=aTime(0.0)):
+    def __init__(self, ranges=aRange(),media=aMedia(),speed=1.0,offset=aTime(0.0),fadeIN=aTime(0.0),fadeOUT=aTime(0.0)):
         self.ranges=ranges
-        self.speed=speed
         self.media=media
+        self.speed=speed
         self.offset=self.testObject(offset)
         self.fadeIN=self.testObject(fadeIN)
         self.fadeOUT=self.testObject(fadeOUT)
@@ -438,12 +438,12 @@ class aBaseClip(aTimeTest):
     #  @note not sure if we should let the speed muliply offset or not!!!
     def getMediaIN(self):
        return aTime((self.ranges.getIN().asTime() + self.media.getStart().asTime() + self.offset.asTime())*self.speed)
-##    ## media's OUT time in media's internal timecode 
-##    #  @retval medias's OUT time as aTime in media's own time code
-##    #  @note not sure if we should let the speed muliply offset or not!!!
-##    def getMediaOUT(self):
-##       return self.getMediaIN() + aTime(self.ranges.getDuration().asTime()*self.speed)
-##       #return self.ranges.getIN() + self.offset+ aTime(self.ranges.getOUT().asTime()*self.speed)
+    ## media's OUT time in media's internal timecode 
+    #  @retval medias's OUT time as aTime in media's own time code
+    #  @note not sure if we should let the speed muliply offset or not!!!
+    def getMediaOUT(self):
+       return self.getMediaIN() + aTime(self.ranges.getDuration().asTime()*self.speed)
+       #return self.ranges.getIN() + self.offset+ aTime(self.ranges.getOUT().asTime()*self.speed)
 
 
     # override setattr to ensure the datatypes for time units to be aTime
@@ -454,10 +454,11 @@ class aBaseClip(aTimeTest):
             self.__dict__[name]=value
 
 clip=aRange(1,2,3)
-media=aMedia(10,20)
-print media.getStart().asTime()
+media=aMedia(5,20)
+
 bclip=aBaseClip(clip,media,2.0)
 print bclip.getMediaIN().asTime()
+print bclip.getMediaOUT().asTime()
 
 '''
 clip=aRange(1,2,3)
