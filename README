@@ -8,5 +8,20 @@ USAGE
 
 In the beginning the objects will be accessed from python. Maybe some simple GUI will applied later on.
 
-At the moment aTime is only usable class.
+At the moment aTime is only usable class. aTime examples
 
+>>> # init with float or int (meaning seconds)
+>>> time=aTime(10)
+>>> # return time as Smpte list
+>>> print time.asSmpte('film', 1)
+(0, 0, 10, 0.0)
+>>> # return time as Smpte string
+>>> print time.asSmpte('film',0, '::;')
+00:00:10;00
+>>> # return time as number of frames using 'PAL' fps
+>>> print time.asFrames('PAL')
+250.0
+>>> # init as smpte
+>>> time=aTime('10:10:11:21')
+>>> # init as frames
+>>> time=aTime('f1000')
