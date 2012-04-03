@@ -414,7 +414,14 @@ class aBaseClip(aTimeTest):
         # self.forcePlaybackRate=0
         ## possible nesting of clips
         # self.subClips=[]
-
+    ## returns media's time at certain point in time - clips speed and offset are evaluated 
+    #  @param time - point on time
+    #  @param reltive - if true, media's start time is converted to 0
+    #  @retval media's time at given time as aTime 
+    def getMediaTime(self,time=aTime(),relative=0):
+        time=self.testObject(time)
+        return 
+        #return aTime((self.ranges.getIN().asTime()-self.media.getStart().asTime()+self.offset.asTime())*self.speed)
 
     ## same as range's IN time 
     #  @retval clips (&range's) IN time as aTime 
@@ -428,11 +435,6 @@ class aBaseClip(aTimeTest):
     #  @retval clips (&range's) duration as aTime 
     def getClipDuration(self):
        return self.ranges.getDuration()
-    
-##    ## clips OUT time - gets modified with clips speed
-##    #  @retval range's OUT time as aTime 
-##    def getClipOUT(self):
-##        return aTime(self.ranges.getIN().asTime() + self.ranges.getDuration().asTime()*self.speed)
     ## media's IN time in media's internal timecode 
     #  @retval medias's IN time as aTime in media's own time code
     #  @note not sure if we should let the speed muliply offset or not!!!
@@ -445,7 +447,6 @@ class aBaseClip(aTimeTest):
        return self.getMediaIN() + aTime(self.ranges.getDuration().asTime()*self.speed)
        #return self.ranges.getIN() + self.offset+ aTime(self.ranges.getOUT().asTime()*self.speed)
 
-
     # override setattr to ensure the datatypes for time units to be aTime
     def __setattr__(self, name, value):
         self.__dict__[name]=value
@@ -457,8 +458,14 @@ clip=aRange(1,2,3)
 media=aMedia(5,20)
 
 bclip=aBaseClip(clip,media,2.0)
+print 'medtime'
+print bclip.getMediaTime().asTime()
+
 print bclip.getMediaIN().asTime()
 print bclip.getMediaOUT().asTime()
+
+## TO DO CHECK WHAT HAPPENS WHEN aTime is inited as int 0 - something wrong
+## should second init be forced to float?
 
 '''
 clip=aRange(1,2,3)
