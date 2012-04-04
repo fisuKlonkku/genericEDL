@@ -418,10 +418,64 @@ class aBaseClip(aTimeTest):
     #  @param time - point on time
     #  @param reltive - if true, media's start time is converted to 0
     #  @retval media's time at given time as aTime 
-    def getMediaTime(self,time=aTime(),relative=0):
+    ### CET CLIPTIME, CLIP IN,OUT;DURATION
+    ### above with offset: GET MEDIA TIME,  GET MEDIA IN OUT; 
+
+    ## returns clips's time at certain point in range's time - clips IN is in sync with ranges in but clips speed is evaluated into the reasult 
+    #  @param time - absolute time on range
+    #  @retval time as clips internal time where speed is evaluated
+    #  @note the function sets clip's IN time and range's in time in sync before evaluating the speed
+    def getClipTime(self,time=aTime()):
         time=self.testObject(time)
-        return 
-        #return aTime((self.ranges.getIN().asTime()-self.media.getStart().asTime()+self.offset.asTime())*self.speed)
+        return self.ranges.getIN()+ aTime((time.asTime()-self.ranges.getIN().asTime())*self.speed)
+
+    def getMediaTime(self,time=aTime()):
+        time=self.testObject(time)
+        return self.ranges.getIN()+ aTime((time.asTime()-self.ranges.getIN().asTime())*self.speed)
+
+    
+    ## shortcut to range's IN time 
+    #  @retval clip's absolute (&range's) IN time as aTime 
+    def getIN(self):
+       return self.ranges.getIN()
+    ## shortcut to range's OUT time 
+    #  @retval clip's absolute (&range's) OUT time as aTime 
+    def getOUT(self):
+       return self.ranges.getOUT()
+    ## shortcut to range's duration 
+    #  @retval clip's absolute (&range's) duration as aTime 
+    def getDuration(self):
+       return self.ranges.getDuration()
+    ## clips IN time 
+    #  @retval clips (&range's) IN time as aTime
+    #  @note this is obsolete because the IN point is in sync with range regardless of speed
+    def getClipIN(self):
+       return self.ranges.getIN()
+    ## same as range's OUT time 
+    #  @retval clips (&range's) OUT time as aTime 
+    def getClipOUT(self):
+       return self.ranges.getOUT()
+    ## same as range's duration 
+    #  @retval clips (&range's) duration as aTime 
+    def getClipDuration(self):
+       return self.ranges.getDuration()
+    ## media's IN time in media's internal timecode 
+    #  @retval medias's IN time as aTime in media's own time code
+    #  @note not sure if we should let the speed muliply offset or not!!!
+
+
+    ## media's IN time in media's internal timecode 
+    #  @retval medias's IN time as aTime in media's own time code
+    #  @note not sure if we should let the speed muliply offset or not!!!
+
+
+
+
+##
+##    def getMediaTime(self,time=aTime(),relative=0):
+##        time=self.testObject(time)
+##        return aTime(me() + self.media.getStart().asTime() + self.offset.asTime())*self.speed) 
+##        #return aTime((self.ranges.getIN().asTime()-self.media.getStart().asTime()+self.offset.asTime())*self.speed)
 
     ## same as range's IN time 
     #  @retval clips (&range's) IN time as aTime 
@@ -454,15 +508,12 @@ class aBaseClip(aTimeTest):
             value=self.testObject(value)
             self.__dict__[name]=value
 
-clip=aRange(1,2,3)
+clip=aRange(2,2,3)
 media=aMedia(5,20)
 
 bclip=aBaseClip(clip,media,2.0)
 print 'medtime'
-print bclip.getMediaTime().asTime()
-
-print bclip.getMediaIN().asTime()
-print bclip.getMediaOUT().asTime()
+print bclip.getClipTime(3).asTime()
 
 ## TO DO CHECK WHAT HAPPENS WHEN aTime is inited as int 0 - something wrong
 ## should second init be forced to float?
