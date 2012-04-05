@@ -401,7 +401,7 @@ class aBaseClip(aTimeTest):
         self.fadeIN=self.testObject(fadeIN)
         self.fadeOUT=self.testObject(fadeOUT)
         
-        ## these are not initialized - atributes are not have use yet, just for the record 
+        #### these are not initialized - atributes are not have use yet, just for the record 
         ## for defining the shape of the fade curve
         # self.fadeINtangetStart=45
         # self.fadeINtangetStart=45
@@ -414,26 +414,71 @@ class aBaseClip(aTimeTest):
         # self.forcePlaybackRate=0
         ## possible nesting of clips
         # self.subClips=[]
+        ####
     ## returns media's time at certain point in time - clips speed and offset are evaluated 
     #  @param time - point on time
     #  @param reltive - if true, media's start time is converted to 0
     #  @retval media's time at given time as aTime 
     ### CET CLIPTIME, CLIP IN,OUT;DURATION
     ### above with offset: GET MEDIA TIME,  GET MEDIA IN OUT; 
-
-    ## returns clips's time at certain point in range's time - clips IN is in sync with ranges in but clips speed is evaluated into the reasult 
+    
+    #### help functions to convert time spaces of range,clip and media 
+    ## basically just adding offset to clips's time 
+    #  @param - offset to to media's tc, clip's own offset is used by default    
+    def clipAsMedia(self,time=aTime(),offset=None):
+        time=self.testObject(time)
+        if not offset:
+            offset=self.offset
+        else:
+            offset=self.testObject(offset)
+        return time+offset
+    ## converts certain point on clips's TC to range's time - clips IN is in sync with range'sbut clips speed is evaluated into the reasult
+    #  @param time - point in time in clip's internal TC
+    #  @retval time as ranges absolute time 
+    #  @note the function sets clip's IN time and range's IN time to sync before evaluating the speed
+    def clipAsRange(self,time=aTime()):
+        time=self.testObject(time)
+        return self.ranges.getIN()+ aTime((time.asTime()-self.ranges.getIN().asTime())/self.speed)
+    ## basically just removing offset from media 
+    #  @param - offset to to media's tc, clip's own offset is used by default    
+    def mediaAsClip(self,time=aTime(),offset=None):
+        time=self.testObject(time)
+        if not offset:
+            offset=self.offset
+        else:
+            offset=self.testObject(offset)
+        return time-offset
+    # same as clipAsRange but evaluates offset
+    #  @param time - point in time in maedia's internal TC 
+    #  @offset - offset to to media's tc, clip's own offset is used by default
+    #  @retval time as ranges absolute time 
+    def mediaAsRange(self,time=aTime(),offset=None):
+        time=self.testObject(time)
+        if not offset:
+            offset=self.offset
+        else:
+            offset=self.testObject(offset)
+        return self.clipAsRange() - offset
+    ## coverts certain point in range's time into clip's TC- clips IN is in sync with ranges in but clips speed is evaluated into the reasult 
     #  @param time - absolute time on range
     #  @retval time as clips internal time where speed is evaluated
-    #  @note the function sets clip's IN time and range's in time in sync before evaluating the speed
-    def getClipTime(self,time=aTime()):
+        #  @note the function sets clip's IN time and range's IN time to sync before evaluating the speed
+    def rangeAsClip(self,time=aTime()):
         time=self.testObject(time)
         return self.ranges.getIN()+ aTime((time.asTime()-self.ranges.getIN().asTime())*self.speed)
-
-    def getMediaTime(self,time=aTime()):
+    ## basically same function as rangeAsClip but is modified with offset
+    #  @param time - absolute time on range
+    #  @param - offset to to media's tc, clip's own offset is used by default
+    #  @retval time as media's internal time where speed and offset are evaluated
+    #  @note the function sets media's IN time and range's IN time to sync before evaluating the speed
+    def rangeAsMedia(self,time=aTime(),offset=None):
         time=self.testObject(time)
-        return self.ranges.getIN()+ aTime((time.asTime()-self.ranges.getIN().asTime())*self.speed)
+        if not offset:
+            offset=self.offset
+        else:
+            offset=self.testObject(offset)
+        return self.rangeAsClip(time) + offset 
 
-    
     ## shortcut to range's IN time 
     #  @retval clip's absolute (&range's) IN time as aTime 
     def getIN(self):
@@ -508,17 +553,21 @@ class aBaseClip(aTimeTest):
             value=self.testObject(value)
             self.__dict__[name]=value
 
+''' to be cont'
 clip=aRange(2,2,3)
 media=aMedia(5,20)
 
-bclip=aBaseClip(clip,media,2.0)
-print 'medtime'
-print bclip.getClipTime(3).asTime()
-
+bclip=aBaseClip(clip,media,2.0,5)
+print 'clip'
+print bclip.rangeAsClip(2).asTime()
+print 'mediatime test'
+print bclip.rangeAsMedia(2).asTime()
+print 'rangetime from clip'
+print bclip.mediaAsClip(2).asTime()
 ## TO DO CHECK WHAT HAPPENS WHEN aTime is inited as int 0 - something wrong
 ## should second init be forced to float?
 
-'''
+
 clip=aRange(1,2,3)
 print clip.getParentOUT('frames')
 
