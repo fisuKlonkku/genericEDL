@@ -84,8 +84,8 @@ class aTimeTest(object):
             return frames
         else:
             print 'Non-supported type for frames ', type(frames)
-    ## tries to convert input arg to aTime
-    #  @retval aTime obj
+    ## tries to convert input arg to time in seconds
+    #  @retval time as seconds
     def testTime(self,time,FPS=aDefaultFPS()):
         if type(time)==str or type(time)==tuple or type(time)==list:
             if 'f' in time and type(time)==str:
@@ -96,8 +96,11 @@ class aTimeTest(object):
             time=time.time 
         return time
     ## returns given input data written into aTime
-    #  @retval frames      
-    def testObject(self,time,FPS=aDefaultFPS()):
+    #  @param time - input time
+    #  @param FPS fps for converting frames or smpte into seconds
+    #  @param orgValue - used for overiding __setAttr__. If orginal value has been aTime the data is writen into this object instead of craeting new one 
+    #  @retval aTime object      
+    def testObject(self,time,FPS=aDefaultFPS(),orgValue=None):
         if type(time)==str or type(time)==tuple or type(time)==list:
             if 'f' in time and type(time)==str:
                 time = aTime(self.framesAsTime(time.replace('f',''), FPS))
@@ -105,6 +108,10 @@ class aTimeTest(object):
                 time = aTime(self.smpteAsTime(time, FPS))
         elif type(time)!=aTime:
             time=aTime(time)
+        if orgValue:
+            if type(orgValue)==aTime:
+                orgValue.time=time.time
+                time=orgValue
         return time
     
 ## base class for time conversion operations. Does also data validation. Used in aTime
@@ -253,8 +260,6 @@ class aRange(aTimeTest):
     #  @param IN point in to the clips own time space clip starts from zero
     #  @param parentIN a sync point to parent's time (for example Edit's global time)
     #  @param duration duration in real time (not clip's internal time code)
-    #  @param clip's playback speed, affect's clips internal tc  
-    #  @param speed the range content is "played"
     def __init__(self, IN=aTime(0.0), parentIN=aTime(0.0), duration=aTime(0.0)):
         # object testing might be changed just to ordinary function
         self.IN=self.testObject(IN)
@@ -282,10 +287,14 @@ class aRange(aTimeTest):
         return self.parentIN+self.duration
     # override setattr to ensure the datatypes for time units to be aTime
     def __setattr__(self, name, value):
-        self.__dict__[name]=value
         if name=='IN' or name=='parentIN' or name=='duration':
-            value=self.testObject(value)
-            self.__dict__[name]=value
+            #check if attr has been initalized yet
+            if hasattr(self, name):
+                value=self.testObject(value, 'no fps data to provide',self.__dict__[name])
+            else:
+                value=self.testObject(value)
+        self.__dict__[name]=value
+
     
 ## a base class for locating media files 
 #  @retval new object
@@ -336,10 +345,9 @@ class aMedia(aTimeTest):
         return self.end-self.start
     # override setattr to ensure the datatypes for time units to be aTime
     def __setattr__(self, name, value):
-        self.__dict__[name]=value
         if name=='start' or name=='end':
             value=self.testObject(value)
-            self.__dict__[name]=value
+        self.__dict__[name]=value
 
 #### SOME OF THESE CLASSES ARE PARTLY COMMENTED OUT - THEY ARE PLACEHOLDERS AT THE MOMENT      
 
@@ -401,7 +409,6 @@ class aBaseClip(aTimeTest):
         self.offset=self.testObject(offset)
         self.fadeIN=self.testObject(fadeIN)
         self.fadeOUT=self.testObject(fadeOUT)
-        
         #### these are not initialized - atributes are not have use yet, just for the record 
         ## for defining the shape of the fade curve
         # self.fadeINtangetStart=45
@@ -479,7 +486,7 @@ class aBaseClip(aTimeTest):
         else:
             offset=self.testObject(offset)
         return self.rangeAsClip(time) + offset 
-    ####functions to return in and out points and durations 
+    ####functions to return IN and OUT points and durations 
     ## shortcut to range's IN time 
     #  @retval clip's absolute (&range's) IN time as aTime 
     def IN(self):
@@ -490,7 +497,7 @@ class aBaseClip(aTimeTest):
        return self.ranges.getOUT()
     ## shortcut to range's duration 
     #  @retval clip's absolute (&range's) duration as aTime 
-    def Duration(self):
+    def duration(self):
        return self.ranges.getDuration()
     ## clips IN time 
     #  @retval clips (&range's) IN time as aTime
@@ -513,19 +520,30 @@ class aBaseClip(aTimeTest):
     #  @retval media's OUT time as aTime 
     def mediaOUT(self):
        return self.rangeAsMedia(self.ranges.getOUT())
-    ## same as clips's duration 
+    ## same as clips's duration - obsolete because clipDuration returns the smae value
     #  @retval meedias) duration as aTime 
     def mediaDuration(self):
        return aTime(self.ranges.getDuration().asTime()*self.speed)
-
+    #### functions to modify classes atributes
+    ## set's the offset by default the offset is set to media's start time to sync clip and media
+    #  @param time - if none media's start time is used   
+    #  @retval none  
+    def setOffset(self, time=None):
+        if not time:
+            time=self.media.getStart()
+        else:
+            time=self.testObject(time)
+        self.offset=time
+    def setSpeedFPS(self):
+        pass
     # override setattr to ensure the datatypes for time units to be aTime
     def __setattr__(self, name, value):
-        self.__dict__[name]=value
         if name=='fadeIN' or name=='fadeOUT' or name=='offset':
             value=self.testObject(value)
-            self.__dict__[name]=value
+        self.__dict__[name]=value
 
 
+'''to be con't
 rng=aRange(2,2,3)
 media=aMedia(5,20)
 
@@ -543,7 +561,7 @@ print 'media'
 print bclip.mediaIN().asTime()
 print bclip.mediaOUT().asTime()
 
-'''
+
 ## TO DO CHECK WHAT HAPPENS WHEN aTime is inited as int 0 - something wrong
 ## should second init be forced to float?
 
